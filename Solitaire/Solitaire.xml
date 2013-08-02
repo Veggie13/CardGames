@@ -1,0 +1,104 @@
+﻿<cardgame name='duolitaire'>
+  <layout>
+    <row />
+    <row>
+      <table name='top'>
+        <layout>
+          <row>
+            <null />
+            <stack name='deck'
+              allowGrabbing='false'
+              allowActivation='true'
+              allowDrop='false' />
+            <stack name='discard'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='false' />
+            <null />
+            <stack name='suit1'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='suit2'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='suit3'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='suit4'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <null />
+          </row>
+        </layout>
+        <styles>
+          <row type='auto' value='1' />
+          <col type='fixed' value='0.05' />
+          <col type='auto' value='0' />
+          <col type='auto' value='0' />
+          <col type='grow' value='1' />
+          <col type='auto' value='0' />
+          <col type='auto' value='0' />
+          <col type='auto' value='0' />
+          <col type='auto' value='0' />
+          <col type='fixed' value='0.05' />
+        </styles>
+      </table>
+    </row>
+    <row>
+      <table name='board'>
+        <layout>
+          <row>
+            <stack name='board1'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board2'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board3'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board4'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board5'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board6'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+            <stack name='board7'
+              allowGrabbing='true'
+              allowActivation='false'
+              allowDrop='true' />
+          </row>
+        </layout>
+        <styles>
+          <row type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+          <col type='grow' value='1' />
+        </styles>
+      </table>
+    </row>
+  </layout>
+  <styles>
+    <row type='fixed' value='0.05' />
+    <row type='auto' value='0' />
+    <row type='grow' value='1' />
+    <col type='grow' value='1' />
+  </styles>
+</cardgame>
