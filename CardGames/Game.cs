@@ -219,7 +219,7 @@ namespace CardGames
             public override Card Draw()
             {
                 List<Card> drawn = new List<Card>();
-                if (CardStack.DrawSequential(1, drawn) < 1)
+                if (CardStack.DrawFromTop(drawn, 1) < 1)
                     return null;
                 return drawn[0];
             }

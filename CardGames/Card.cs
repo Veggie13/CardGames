@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace CardGames
 {
@@ -65,7 +66,7 @@ namespace CardGames
             internal set { _vis = value; }
         }
 
-        public ICardCollection Owner { get; internal set; }
+        public ICardSequence Owner { get; internal set; }
 
         #region IEquatable<Card> Members
 
@@ -112,25 +113,60 @@ namespace CardGames
         }
 
         #region ICardCollection
-        public event Action Modified;
+        public event Action Modified = delegate { };
         private void emitModified()
         {
-            if (Modified != null)
-                Modified();
+            Modified();
         }
 
-        public int DrawRandom(int count, ICollection<Card> dest)
+        public int Draw(ICollection<Card> dest, params int[] positions)
         {
+            if (!positions.Any())
+                return 0;
+            if (positions.Length > 1)
+                throw new CardException("Cannot draw more than one from a single card.");
+            if (positions[0] != 0)
+                throw new CardException("Invalid position.");
+
             Owner = null;
             dest.Add(this);
             return 1;
         }
 
-        public int DrawSequential(int count, ICollection<Card> dest)
+        public int DrawFromTop(ICollection<Card> dest, int count)
         {
+            if (count == 0)
+                return 0;
+            if (count > 1)
+                throw new CardException("Cannot draw more than one from a single card.");
+
             Owner = null;
             dest.Add(this);
             return 1;
+        }
+
+        public ICardSequenceAction TryDraw(params int[] positions)
+        {
+            if (!positions.Any())
+                return new NullCardSequenceAction();
+            if (positions.Length > 1)
+                throw new CardException("Cannot draw more than one from a single card.");
+            if (positions[0] != 0)
+                throw new CardException("Invalid position.");
+
+            Owner = null;
+            return new NullCardSequenceAction();
+        }
+
+        public ICardSequenceAction TryDrawFromTop(int count)
+        {
+            if (count == 0)
+                return new NullCardSequenceAction();
+            if (count > 1)
+                throw new CardException("Cannot draw more than one from a single card.");
+
+            Owner = null;
+            return new NullCardSequenceAction();
         }
 
         #region IList
@@ -210,5 +246,10 @@ namespace CardGames
         #endregion
         #endregion
         #endregion
+
+        public override string ToString()
+        {
+            return FaceValue.ToString() + " of " + Suit.ToString();
+        }
     }
 }

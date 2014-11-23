@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace CardGames
 {
@@ -35,13 +36,53 @@ namespace CardGames
 
         public class CardEventArgs : EventArgs
         {
-            public CardEventArgs()
+            public CardEventArgs(CardStack stack, IEnumerable<Card> cards)
             {
+                CardStack = stack;
+                Cards = cards;
                 Cancel = false;
             }
 
-            public IEnumerable<Card> Cards { get; set; }
+            public CardStack CardStack { get; private set; }
+            public IEnumerable<Card> Cards { get; private set; }
             public bool Cancel { get; set; }
+        }
+
+        class CardStackAction : ICardSequenceAction
+        {
+            private CardStack _source;
+            private List<Tuple<int, Card>> _cards;
+
+            public CardStackAction(CardStack source, IEnumerable<Tuple<int, Card>> cards)
+            {
+                _source = source;
+                _cards = cards.ToList();
+            }
+
+            public ICardSequence SourceSequence
+            {
+                get { return _source; }
+            }
+
+            public IEnumerable<Card> Cards
+            {
+                get { return _cards.Select(t => t.Item2); }
+            }
+
+            public void Undo()
+            {
+                if (_source == null)
+                    return;
+
+                foreach (var tuple in _cards.OrderBy(t => t.Item1))
+                {
+                    _source._cards.Insert(tuple.Item1, tuple.Item2);
+                }
+
+                _source.emitModified();
+                _source = null;
+                _cards.Clear();
+            }
         }
         #endregion
 
@@ -90,17 +131,17 @@ namespace CardGames
         #endregion
 
         #region Events
-        public delegate void CardPreEventHandler(CardStack stack, CardEventArgs e);
+        public delegate void CardPreEventHandler(CardEventArgs e);
         public delegate void CardPostEventHandler(CardStack stack, IEnumerable<Card> cards);
 
-        public event CardPreEventHandler AboutToDraw;
-        public event CardPostEventHandler CardsDrawn;
+        public event CardPreEventHandler AboutToDraw = delegate { };
+        public event CardPostEventHandler CardsDrawn = delegate { };
 
-        public event CardPreEventHandler AboutToReceiveCards;
-        public event CardPostEventHandler CardsReceived;
+        public event CardPreEventHandler AboutToReceiveCards = delegate { };
+        public event CardPostEventHandler CardsReceived = delegate { };
 
-        public event CardPreEventHandler AboutToActivate;
-        public event CardPostEventHandler Activated;
+        public event CardPreEventHandler AboutToActivate = delegate { };
+        public event CardPostEventHandler Activated = delegate { };
         #endregion
 
         #region Public Methods
@@ -132,8 +173,8 @@ namespace CardGames
         {
             if (AboutToActivate != null)
             {
-                var e = new CardEventArgs();
-                AboutToActivate(this, e);
+                var e = new CardEventArgs(this, new Card[0]);
+                AboutToActivate(e);
                 if (e.Cancel)
                     return false;
             }
@@ -148,7 +189,7 @@ namespace CardGames
         #endregion
 
         #region ICardSequence
-        public event Action Modified;
+        public event Action Modified = delegate { };
 
         public void Shuffle()
         {
@@ -167,53 +208,39 @@ namespace CardGames
             emitModified();
         }
 
-        public int DrawRandom(int count, ICollection<Card> dest)
+        public int Draw(ICollection<Card> dest, params int[] positions)
         {
-            var rand = new Random();
+            throwIfInvalid(positions);
 
-            int i = 0;
-            for (; i < count && _cards.Count > 0; i++)
-            {
-                int j = rand.Next(_cards.Count);
-                Card c = _cards[j];
-                _cards.RemoveAt(j);
-                detachCards(c);
-                c.Grab();
-                dest.Add(c);
-            }
-
-            if (i > 0)
-                emitModified();
-
-            return i;
+            List<Card> drawn = positions.Select(p => _cards[p]).ToList();
+            return drawCards(dest, drawn);
         }
 
-        public int DrawSequential(int count, ICollection<Card> dest)
+        public int DrawFromTop(ICollection<Card> dest, int count)
         {
-            if (!doAboutToDraw())
-                return 0;
-
-            int i = 0;
-            List<Card> drawn = new List<Card>();
-            for (; i < count && _cards.Count > 0; i++)
-            {
-                Card c = Top;
-                _cards.Remove(c);
-                detachCards(c);
-                c.Grab();
-                dest.Add(c);
-                drawn.Add(c);
-            }
-
-            if (i > 0)
-            {
-                emitCardsDrawn(drawn);
-                emitModified();
-            }
-
-            return i;
+            return Draw(dest, Enumerable.Range(0, count).ToArray());
         }
 
+        public ICardSequenceAction TryDraw(params int[] positions)
+        {
+            throwIfInvalid(positions);
+
+            var map = positions.Select(p => new Tuple<int, Card>(p, _cards[p])).ToList();
+            List<Card> dest = new List<Card>();
+            if (0 == drawCards(dest, map.Select(t => t.Item2)))
+            {
+                return new CardStackAction(null, new Tuple<int, Card>[0]);
+            }
+
+            return new CardStackAction(this, map);
+        }
+
+        public ICardSequenceAction TryDrawFromTop(int count)
+        {
+            return TryDraw(Enumerable.Range(0, count).ToArray());
+        }
+
+        #region ICollection<Card>
         public void Add(Card item)
         {
             _cards.Add(item);
@@ -299,45 +326,31 @@ namespace CardGames
             }
         }
         #endregion
+        #endregion
 
         #region Helpers
         private void emitModified()
         {
-            if (Modified != null)
-                Modified();
+            Modified();
         }
 
         private bool doAboutToReceiveCards(IEnumerable<Card> cards)
         {
-            if (AboutToReceiveCards != null)
-            {
-                var e = new CardEventArgs();
-                e.Cards = cards;
-                AboutToReceiveCards(this, e);
-                if (e.Cancel)
-                    return false;
-            }
-
-            return true;
+            var e = new CardEventArgs(this, cards);
+            AboutToReceiveCards(e);
+            return !e.Cancel;
         }
 
-        private bool doAboutToDraw()
+        private bool doAboutToDraw(IEnumerable<Card> cards)
         {
-            if (AboutToDraw != null)
-            {
-                var e = new CardEventArgs();
-                AboutToDraw(this, e);
-                if (e.Cancel)
-                    return false;
-            }
-
-            return true;
+            var e = new CardEventArgs(this, cards);
+            AboutToDraw(e);
+            return !e.Cancel;
         }
 
         private void emitCardsDrawn(IEnumerable<Card> cards)
         {
-            if (CardsDrawn != null)
-                CardsDrawn(this, cards);
+            CardsDrawn(this, cards);
         }
 
         private void attachCards(IEnumerable<Card> newCards)
@@ -373,6 +386,28 @@ namespace CardGames
             }
         }
 
+        private int drawCards(ICollection<Card> dest, IEnumerable<Card> drawn)
+        {
+            if (!doAboutToDraw(drawn))
+                return 0;
+
+            foreach (Card c in drawn)
+            {
+                _cards.Remove(c);
+                detachCards(c);
+                c.Grab();
+                dest.Add(c);
+            }
+
+            if (drawn.Any())
+            {
+                emitCardsDrawn(drawn);
+                emitModified();
+            }
+
+            return drawn.Count();
+        }
+
         internal bool receiveCardsOnTop(IEnumerable<Card> cards)
         {
             if (!doAboutToReceiveCards(cards))
@@ -382,6 +417,12 @@ namespace CardGames
             attachCards(cards);
             emitModified();
             return true;
+        }
+
+        private void throwIfInvalid(IEnumerable<int> indices)
+        {
+            if (indices.Any(i => i < 0 || i >= _cards.Count))
+                throw new CardException("Invalid Index");
         }
         #endregion
     }

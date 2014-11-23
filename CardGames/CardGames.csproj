@@ -58,10 +58,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="CardException.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Hand.cs" />
-    <Compile Include="ICardCollection.cs" />
+    <Compile Include="ICardSequence.cs" />
     <Compile Include="CardStack.cs" />
     <Compile Include="ICardRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
