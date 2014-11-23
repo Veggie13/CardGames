@@ -204,6 +204,33 @@ namespace CardGames.Tests
             Assert.IsTrue(deck.Contains(cards[4]));
         }
 
+        [TestMethod]
+        public void TryDrawFromTopThreeTest()
+        {
+            Deck deck = new Deck();
+            var action = deck.TryDrawFromTop(3);
+            var cards = action.Cards.ToList();
+
+            Assert.AreEqual(deck, action.SourceSequence);
+            Assert.AreEqual(3, cards.Count);
+            areEqualAssert(Face.Ace, Suit.Clubs, cards[0]);
+            areEqualAssert(Face.Ace, Suit.Diamonds, cards[1]);
+            areEqualAssert(Face.Ace, Suit.Hearts, cards[2]);
+            Assert.AreEqual(49, deck.Count);
+            Assert.IsFalse(deck.Contains(cards[0]));
+            Assert.IsFalse(deck.Contains(cards[1]));
+            Assert.IsFalse(deck.Contains(cards[2]));
+
+            action.Undo();
+
+            Assert.AreEqual(null, action.SourceSequence);
+            Assert.IsFalse(action.Cards.Any());
+            Assert.AreEqual(52, deck.Count);
+            Assert.IsTrue(deck.Contains(cards[0]));
+            Assert.IsTrue(deck.Contains(cards[1]));
+            Assert.IsTrue(deck.Contains(cards[2]));
+        }
+
         private void areEqualAssert(Face expectedFaceValue, Suit expectedSuit, Card card)
         {
             Assert.AreEqual(expectedFaceValue, card.FaceValue);
