@@ -131,7 +131,7 @@ namespace CardGames
         #endregion
 
         #region Events
-        public delegate void CardPreEventHandler(CardEventArgs e);
+        public delegate void CardPreEventHandler(CardStack stack, CardEventArgs e);
         public delegate void CardPostEventHandler(CardStack stack, IEnumerable<Card> cards);
 
         public event CardPreEventHandler AboutToDraw = delegate { };
@@ -160,7 +160,7 @@ namespace CardGames
 
         public bool StackOnto(CardStack stack)
         {
-            if (!stack.receiveCardsOnTop(this))
+            if (!stack.receiveCardsOnTop(this, this))
                 return false;
 
             detachCards(_cards);
@@ -171,19 +171,12 @@ namespace CardGames
 
         public bool Activate()
         {
-            if (AboutToActivate != null)
-            {
-                var e = new CardEventArgs(this, new Card[0]);
-                AboutToActivate(e);
-                if (e.Cancel)
-                    return false;
-            }
+            var e = new CardEventArgs(this, new Card[0]);
+            AboutToActivate(this, e);
+            if (e.Cancel)
+                return false;
 
-            if (Activated != null)
-            {
-                Activated(this, null);
-            }
-
+            Activated(this, null);
             return true;
         }
         #endregion
@@ -334,17 +327,17 @@ namespace CardGames
             Modified();
         }
 
-        private bool doAboutToReceiveCards(IEnumerable<Card> cards)
+        private bool doAboutToReceiveCards(CardStack origin, IEnumerable<Card> cards)
         {
-            var e = new CardEventArgs(this, cards);
-            AboutToReceiveCards(e);
+            var e = new CardEventArgs(origin, cards);
+            AboutToReceiveCards(this, e);
             return !e.Cancel;
         }
 
         private bool doAboutToDraw(IEnumerable<Card> cards)
         {
             var e = new CardEventArgs(this, cards);
-            AboutToDraw(e);
+            AboutToDraw(this, e);
             return !e.Cancel;
         }
 
@@ -408,13 +401,14 @@ namespace CardGames
             return drawn.Count();
         }
 
-        internal bool receiveCardsOnTop(IEnumerable<Card> cards)
+        internal bool receiveCardsOnTop(CardStack origin, IEnumerable<Card> cards)
         {
-            if (!doAboutToReceiveCards(cards))
+            if (!doAboutToReceiveCards(origin, cards))
                 return false;
 
             _cards.InsertRange(0, cards);
             attachCards(cards);
+            CardsReceived(origin, cards);
             emitModified();
             return true;
         }
@@ -431,7 +425,7 @@ namespace CardGames
     {
         public static bool StackOnto(this IEnumerable<Card> cards, CardStack stack)
         {
-            return stack.receiveCardsOnTop(cards);
+            return stack.receiveCardsOnTop(null, cards);
         }
     }
 

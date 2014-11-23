@@ -104,7 +104,7 @@ namespace CardGames
 
         public bool StackOnto(CardStack stack)
         {
-            return stack.receiveCardsOnTop(this);
+            return stack.receiveCardsOnTop(null, this);
         }
 
         #region ICardSequence

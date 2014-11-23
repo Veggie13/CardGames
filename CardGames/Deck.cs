@@ -8,7 +8,7 @@ namespace CardGames
     {
         private static int DeckCount = 0;
 
-        public Deck(bool includeJokers) : base(string.Format("Deck{0}", ++DeckCount))
+        public Deck(bool includeJokers = false) : base(string.Format("Deck{0}", ++DeckCount))
         {
             for (int i = 1; i <= 13; i++)
             {
