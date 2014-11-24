@@ -88,11 +88,11 @@ namespace CardGames.Tests
         {
             Deck deck = new Deck();
             bool drawn = false;
-            deck.CardsDrawn += (stack, cards) =>
+            deck.CardsDrawn += (stack, e) =>
             {
                 drawn = true;
                 Assert.AreEqual(deck, stack);
-                areEqualAssert(Face.Ace, Suit.Clubs, cards.First());
+                areEqualAssert(Face.Ace, Suit.Clubs, e.Cards.First());
             };
 
             List<Card> dest = new List<Card>();
@@ -111,7 +111,7 @@ namespace CardGames.Tests
             {
                 cancelled = true;
                 Assert.AreEqual(deck, sender);
-                Assert.AreEqual(e.CardStack, deck);
+                Assert.AreEqual(deck, e.SourceStack);
                 areEqualAssert(Face.Ace, Suit.Clubs, e.Cards.First());
                 e.Cancel = true;
             };
@@ -131,11 +131,12 @@ namespace CardGames.Tests
             CardStack stack = new CardStack("Other");
             bool received = false;
             HashSet<Card> receivedCards = new HashSet<Card>(deck);
-            stack.CardsReceived += (sender, cards) =>
+            stack.CardsReceived += (sender, e) =>
             {
                 received = true;
-                Assert.AreEqual(deck, sender);
-                Assert.IsTrue(receivedCards.SetEquals(cards));
+                Assert.AreEqual(stack, sender);
+                Assert.AreEqual(deck, e.SourceStack);
+                Assert.IsTrue(receivedCards.SetEquals(e.Cards));
             };
 
             deck.StackOnto(stack);
@@ -157,7 +158,7 @@ namespace CardGames.Tests
             {
                 cancelled = true;
                 Assert.AreEqual(stack, sender);
-                Assert.AreEqual(deck, e.CardStack);
+                Assert.AreEqual(deck, e.SourceStack);
                 Assert.IsTrue(receivedCards.SetEquals(e.Cards));
                 e.Cancel = true;
             };

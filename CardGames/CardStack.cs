@@ -38,13 +38,22 @@ namespace CardGames
         {
             public CardEventArgs(CardStack stack, IEnumerable<Card> cards)
             {
-                CardStack = stack;
+                SourceStack = stack;
                 Cards = cards;
+            }
+
+            public CardStack SourceStack { get; private set; }
+            public IEnumerable<Card> Cards { get; private set; }
+        }
+
+        public class CancellableCardEventArgs : CardEventArgs
+        {
+            public CancellableCardEventArgs(CardStack stack, IEnumerable<Card> cards)
+                : base(stack, cards)
+            {
                 Cancel = false;
             }
 
-            public CardStack CardStack { get; private set; }
-            public IEnumerable<Card> Cards { get; private set; }
             public bool Cancel { get; set; }
         }
 
@@ -131,17 +140,17 @@ namespace CardGames
         #endregion
 
         #region Events
-        public delegate void CardPreEventHandler(CardStack stack, CardEventArgs e);
-        public delegate void CardPostEventHandler(CardStack stack, IEnumerable<Card> cards);
+        public delegate void CancellableCardEventHandler(CardStack stack, CancellableCardEventArgs e);
+        public delegate void CardEventHandler(CardStack stack, CardEventArgs e);
 
-        public event CardPreEventHandler AboutToDraw = delegate { };
-        public event CardPostEventHandler CardsDrawn = delegate { };
+        public event CancellableCardEventHandler AboutToDraw = delegate { };
+        public event CardEventHandler CardsDrawn = delegate { };
 
-        public event CardPreEventHandler AboutToReceiveCards = delegate { };
-        public event CardPostEventHandler CardsReceived = delegate { };
+        public event CancellableCardEventHandler AboutToReceiveCards = delegate { };
+        public event CardEventHandler CardsReceived = delegate { };
 
-        public event CardPreEventHandler AboutToActivate = delegate { };
-        public event CardPostEventHandler Activated = delegate { };
+        public event CancellableCardEventHandler AboutToActivate = delegate { };
+        public event CardEventHandler Activated = delegate { };
         #endregion
 
         #region Public Methods
@@ -171,12 +180,12 @@ namespace CardGames
 
         public bool Activate()
         {
-            var e = new CardEventArgs(this, new Card[0]);
+            var e = new CancellableCardEventArgs(this, new Card[0]);
             AboutToActivate(this, e);
             if (e.Cancel)
                 return false;
 
-            Activated(this, null);
+            Activated(this, e);
             return true;
         }
         #endregion
@@ -327,23 +336,21 @@ namespace CardGames
             Modified();
         }
 
-        private bool doAboutToReceiveCards(CardStack origin, IEnumerable<Card> cards)
+        private bool doAboutToReceiveCards(CancellableCardEventArgs e)
         {
-            var e = new CardEventArgs(origin, cards);
             AboutToReceiveCards(this, e);
             return !e.Cancel;
         }
 
-        private bool doAboutToDraw(IEnumerable<Card> cards)
+        private bool doAboutToDraw(CancellableCardEventArgs e)
         {
-            var e = new CardEventArgs(this, cards);
             AboutToDraw(this, e);
             return !e.Cancel;
         }
 
-        private void emitCardsDrawn(IEnumerable<Card> cards)
+        private void emitCardsDrawn(CardEventArgs e)
         {
-            CardsDrawn(this, cards);
+            CardsDrawn(this, e);
         }
 
         private void attachCards(IEnumerable<Card> newCards)
@@ -381,7 +388,8 @@ namespace CardGames
 
         private int drawCards(ICollection<Card> dest, IEnumerable<Card> drawn)
         {
-            if (!doAboutToDraw(drawn))
+            var e = new CancellableCardEventArgs(this, drawn);
+            if (!doAboutToDraw(e))
                 return 0;
 
             foreach (Card c in drawn)
@@ -394,7 +402,7 @@ namespace CardGames
 
             if (drawn.Any())
             {
-                emitCardsDrawn(drawn);
+                emitCardsDrawn(e);
                 emitModified();
             }
 
@@ -403,12 +411,13 @@ namespace CardGames
 
         internal bool receiveCardsOnTop(CardStack origin, IEnumerable<Card> cards)
         {
-            if (!doAboutToReceiveCards(origin, cards))
+            var e = new CancellableCardEventArgs(origin, cards);
+            if (!doAboutToReceiveCards(e))
                 return false;
 
             _cards.InsertRange(0, cards);
             attachCards(cards);
-            CardsReceived(origin, cards);
+            CardsReceived(this, e);
             emitModified();
             return true;
         }
