@@ -108,9 +108,10 @@ namespace CardGames
         }
         #endregion
 
-        public CardStack(string name)
+        public CardStack(string name, CardStack source = null)
         {
             Name = name;
+            Source = (source == null) ? this : source;
             Manager.Add(name, this);
         }
 
@@ -137,6 +138,8 @@ namespace CardGames
         {
             get { return _cards.Count; }
         }
+
+        public CardStack Source { get; private set; }
         #endregion
 
         #region Events
@@ -169,7 +172,7 @@ namespace CardGames
 
         public bool StackOnto(CardStack stack)
         {
-            if (!stack.receiveCardsOnTop(this, this))
+            if (!stack.receiveCardsOnTop(this.Source, this))
                 return false;
 
             detachCards(_cards);
@@ -180,7 +183,7 @@ namespace CardGames
 
         public bool Activate()
         {
-            var e = new CancellableCardEventArgs(this, new Card[0]);
+            var e = new CancellableCardEventArgs(this.Source, new Card[0]);
             AboutToActivate(this, e);
             if (e.Cancel)
                 return false;
@@ -330,6 +333,13 @@ namespace CardGames
         #endregion
         #endregion
 
+        #region Overrides
+        public override string ToString()
+        {
+            return Name;
+        }
+        #endregion
+
         #region Helpers
         private void emitModified()
         {
@@ -388,7 +398,7 @@ namespace CardGames
 
         private int drawCards(ICollection<Card> dest, IEnumerable<Card> drawn)
         {
-            var e = new CancellableCardEventArgs(this, drawn);
+            var e = new CancellableCardEventArgs(this.Source, drawn);
             if (!doAboutToDraw(e))
                 return 0;
 
@@ -396,7 +406,7 @@ namespace CardGames
             {
                 _cards.Remove(c);
                 detachCards(c);
-                c.Grab();
+                //c.Grab();
                 dest.Add(c);
             }
 
@@ -430,7 +440,7 @@ namespace CardGames
         #endregion
     }
 
-    static partial class Extensions
+    public static partial class Extensions
     {
         public static bool StackOnto(this IEnumerable<Card> cards, CardStack stack)
         {

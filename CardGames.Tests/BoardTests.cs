@@ -42,6 +42,8 @@ namespace CardGames.Tests
 
         class MockStackRule : IStackRule
         {
+            public Board Board { get; set; }
+
             public Func<CardStack, IEnumerable<Card>, bool> CanDrawFunc;
             public bool CanDraw(CardStack stack, IEnumerable<Card> cards)
             {

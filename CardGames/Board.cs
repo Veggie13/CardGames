@@ -24,13 +24,13 @@ namespace CardGames
             }
         }
 
-        public void AddStack(string name)
+        public void AddStack(string name, IStackRule rule = null)
         {
             if (_stacks.ContainsKey(name))
                 throw new CardException("Stack already exists.");
 
             var stack = new CardStack(name);
-            _stacks[name] = new Tuple<CardStack, IStackRule>(stack, null);
+            _stacks[name] = new Tuple<CardStack, IStackRule>(stack, rule);
 
             stack.AboutToDraw += stack_AboutToDraw;
             stack.AboutToReceiveCards += stack_AboutToReceiveCards;

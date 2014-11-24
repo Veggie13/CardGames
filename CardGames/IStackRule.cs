@@ -7,6 +7,8 @@ namespace CardGames
 {
     public interface IStackRule
     {
+        Board Board { get; set; }
+
         bool CanDraw(CardStack stack, IEnumerable<Card> cards);
         bool CanDrop(CardStack source, CardStack stack, IEnumerable<Card> cards);
         bool CanActivate(CardStack stack);
