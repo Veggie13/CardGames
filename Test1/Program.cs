@@ -11,6 +11,11 @@ namespace Test1
         private bool _inActivation = false;
         private CardStack _temp;
 
+        public static void Register()
+        {
+            StackRuleManager.Register<DrawRule>("draw");
+        }
+
         private Board _board;
         public Board Board
         {
@@ -67,6 +72,11 @@ namespace Test1
 
     class DiscardRule : IStackRule
     {
+        public static void Register()
+        {
+            StackRuleManager.Register<DiscardRule>("discard");
+        }
+
         public Board Board { get; set; }
 
         private CardStack Draw { get { return Board["draw"]; } }
@@ -103,6 +113,11 @@ namespace Test1
 
     class TopRule : IStackRule
     {
+        public static void Register()
+        {
+            StackRuleManager.Register<TopRule>("top");
+        }
+
         public Board Board { get; set; }
 
         public bool CanDraw(CardStack stack, IEnumerable<Card> cards)
@@ -149,6 +164,11 @@ namespace Test1
 
     class PileRule : IStackRule
     {
+        public static void Register()
+        {
+            StackRuleManager.Register<PileRule>("pile");
+        }
+
         public Board Board { get; set; }
 
         public bool CanDraw(CardStack stack, IEnumerable<Card> cards)
@@ -191,6 +211,49 @@ namespace Test1
         }
     }
 
+    class SolitaireGame : Game
+    {
+        static SolitaireGame()
+        {
+            DrawRule.Register();
+            DiscardRule.Register();
+            TopRule.Register();
+            PileRule.Register();
+        }
+
+        public override IEnumerable<Tuple<string, string>> StackDefinitions
+        {
+            get
+            {
+                yield return new Tuple<string, string>("draw", "draw");
+                yield return new Tuple<string, string>("discard", "discard");
+                yield return new Tuple<string, string>("top1", "top");
+                yield return new Tuple<string, string>("top2", "top");
+                yield return new Tuple<string, string>("top3", "top");
+                yield return new Tuple<string, string>("top4", "top");
+                yield return new Tuple<string, string>("pile1", "pile");
+                yield return new Tuple<string, string>("pile2", "pile");
+                yield return new Tuple<string, string>("pile3", "pile");
+                yield return new Tuple<string, string>("pile4", "pile");
+                yield return new Tuple<string, string>("pile5", "pile");
+                yield return new Tuple<string, string>("pile6", "pile");
+                yield return new Tuple<string, string>("pile7", "pile");
+            }
+        }
+
+        protected override void onDeal()
+        {
+            Deck.Shuffle();
+            for (int i = 1; i <= 7; i++)
+            {
+                string name = "pile" + i.ToString();
+                Deck.DrawFromTop(Board[name], i);
+                Board[name].FlipTop();
+            }
+            Deck.StackOnto(Board["draw"]);
+        }
+    }
+
     static class Program
     {
         static void Main(string[] args)
@@ -225,46 +288,11 @@ namespace Test1
             ";
             //Game game = Game.ParseDefinition(gameDef);
 
-            Deck deck = new Deck();
-            Board board = new Board();
-            board.AddStack("draw");
-            board.AddStack("discard");
-            board.AddStack("top1");
-            board.AddStack("top2");
-            board.AddStack("top3");
-            board.AddStack("top4");
-            board.AddStack("pile1");
-            board.AddStack("pile2");
-            board.AddStack("pile3");
-            board.AddStack("pile4");
-            board.AddStack("pile5");
-            board.AddStack("pile6");
-            board.AddStack("pile7");
+            SolitaireGame game = new SolitaireGame();
+            game.Initialize();
+            game.Deal();
 
-            deck.Shuffle();
-            for (int i = 1; i <= 7; i++)
-            {
-                string name = "pile" + i.ToString();
-                deck.DrawFromTop(board[name], i);
-                board[name].FlipTop();
-            }
-            deck.StackOnto(board["draw"]);
-
-            board.SetStackRule("draw", new DrawRule() { Board = board });
-            board.SetStackRule("discard", new DiscardRule() { Board = board });
-            board.SetStackRule("top1", new TopRule() { Board = board });
-            board.SetStackRule("top2", new TopRule() { Board = board });
-            board.SetStackRule("top3", new TopRule() { Board = board });
-            board.SetStackRule("top4", new TopRule() { Board = board });
-            board.SetStackRule("pile1", new PileRule() { Board = board });
-            board.SetStackRule("pile2", new PileRule() { Board = board });
-            board.SetStackRule("pile3", new PileRule() { Board = board });
-            board.SetStackRule("pile4", new PileRule() { Board = board });
-            board.SetStackRule("pile5", new PileRule() { Board = board });
-            board.SetStackRule("pile6", new PileRule() { Board = board });
-            board.SetStackRule("pile7", new PileRule() { Board = board });
-
-            bool result = board["draw"].Activate();
+            bool result = game.Board["draw"].Activate();
 
             //Console.WriteLine(cs1.Count.ToString());
             Console.Read();

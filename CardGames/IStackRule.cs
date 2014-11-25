@@ -17,4 +17,19 @@ namespace CardGames
         void OnDrop(CardStack source, CardStack stack, IEnumerable<Card> cards);
         void OnActivation(CardStack stack);
     }
+
+    public static class StackRuleManager
+    {
+        private static Dictionary<string, Type> Registry = new Dictionary<string, Type>();
+
+        public static void Register<T>(string name) where T : IStackRule, new()
+        {
+            Registry[name] = typeof(T);
+        }
+
+        public static IStackRule Create(string name)
+        {
+            return (IStackRule)Activator.CreateInstance(Registry[name]);
+        }
+    }
 }

@@ -9,6 +9,11 @@ namespace CardGames
     {
         private Dictionary<string, Tuple<CardStack, IStackRule>> _stacks = new Dictionary<string, Tuple<CardStack, IStackRule>>();
 
+        public Board()
+        {
+            RulesEnabled = true;
+        }
+
         public CardStack this[string name]
         {
             get
@@ -24,6 +29,8 @@ namespace CardGames
             }
         }
 
+        public bool RulesEnabled { get; set; }
+
         public void AddStack(string name, IStackRule rule = null)
         {
             if (_stacks.ContainsKey(name))
@@ -38,6 +45,9 @@ namespace CardGames
             stack.CardsDrawn += stack_CardsDrawn;
             stack.CardsReceived += stack_CardsReceived;
             stack.Activated += stack_Activated;
+
+            if (rule != null)
+                rule.Board = this;
         }
 
         public void SetStackRule(string stackName, IStackRule rule)
@@ -50,6 +60,9 @@ namespace CardGames
 
         private void stack_Activated(CardStack stack, CardStack.CardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
@@ -59,6 +72,9 @@ namespace CardGames
 
         private void stack_CardsReceived(CardStack stack, CardStack.CardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
@@ -68,6 +84,9 @@ namespace CardGames
 
         private void stack_CardsDrawn(CardStack stack, CardStack.CardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
@@ -77,6 +96,9 @@ namespace CardGames
 
         private void stack_AboutToActivate(CardStack stack, CardStack.CancellableCardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
@@ -86,6 +108,9 @@ namespace CardGames
 
         private void stack_AboutToReceiveCards(CardStack stack, CardStack.CancellableCardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
@@ -95,6 +120,9 @@ namespace CardGames
 
         private void stack_AboutToDraw(CardStack stack, CardStack.CancellableCardEventArgs e)
         {
+            if (!RulesEnabled)
+                return;
+
             var tuple = _stacks.Values.First(t => t.Item1 == stack);
             if (tuple.Item2 != null)
             {
