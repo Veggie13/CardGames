@@ -63,6 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Game.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -96,6 +97,10 @@
     <ProjectReference Include="..\CardGames.WPF\CardGames.WPF.csproj">
       <Project>{68FDE733-05D4-4046-A3DA-E6A5C0A2D646}</Project>
       <Name>CardGames.WPF</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CardGames\CardGames.csproj">
+      <Project>{84b51784-c8de-4293-9a31-46de51641af5}</Project>
+      <Name>CardGames</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

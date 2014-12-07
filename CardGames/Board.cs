@@ -29,6 +29,16 @@ namespace CardGames
             }
         }
 
+        public IEnumerable<string> Keys
+        {
+            get { return _stacks.Keys; }
+        }
+
+        public IEnumerable<CardStack> Stacks
+        {
+            get { return _stacks.Values.Select(t => t.Item1); }
+        }
+
         public bool RulesEnabled { get; set; }
 
         public void AddStack(string name, IStackRule rule = null)

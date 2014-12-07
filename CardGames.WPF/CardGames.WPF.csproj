@@ -46,10 +46,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CardGameView.xaml.cs">
-      <DependentUpon>CardGameView.xaml</DependentUpon>
+    <Compile Include="BoardView.xaml.cs">
+      <DependentUpon>BoardView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CardGameViewModel.cs" />
+    <Compile Include="BoardViewModel.cs" />
     <Compile Include="CardImageSet.cs" />
     <Compile Include="CardStackViewModel.cs" />
     <Compile Include="CardViewModel.cs" />
@@ -61,7 +61,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="CardGameView.xaml">
+    <Page Include="BoardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

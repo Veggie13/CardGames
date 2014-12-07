@@ -96,6 +96,7 @@ namespace CardGames
         #endregion
 
         #region Members
+        private Dictionary<string, object> _properties = new Dictionary<string, object>();
         private List<Card> _cards = new List<Card>();
         private int _cardsModified = 0;
         #endregion
@@ -116,6 +117,12 @@ namespace CardGames
         }
 
         #region Properties
+        public object this[string name]
+        {
+            get { return _properties[name]; }
+            set { _properties[name] = value; }
+        }
+
         public string Name { get; private set; }
 
         public Card Top
@@ -139,7 +146,7 @@ namespace CardGames
             get { return _cards.Count; }
         }
 
-        public CardStack Source { get; private set; }
+        public CardStack Source { get; set; }
         #endregion
 
         #region Events

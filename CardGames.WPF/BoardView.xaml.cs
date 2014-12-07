@@ -18,19 +18,17 @@ namespace CardGames.WPF
     /// <summary>
     /// Interaction logic for CardGameView.xaml
     /// </summary>
-    public partial class CardGameView : UserControl, INotifyPropertyChanged
+    public partial class BoardView : UserControl, INotifyPropertyChanged
     {
         private double _dx, _dy;
 
-        public CardGameView()
+        public BoardView()
         {
             InitializeComponent();
-
-            ViewModel = new CardGameViewModel();
         }
 
-        private CardGameViewModel _viewModel;
-        public CardGameViewModel ViewModel
+        private BoardViewModel _viewModel;
+        public BoardViewModel ViewModel
         {
             get { return _viewModel; }
             set
@@ -75,7 +73,7 @@ namespace CardGames.WPF
             Rectangle rect = sender as Rectangle;
             if (rect == null)
                 return;
-
+            /*
             CardViewModel vm = rect.Tag as CardViewModel;
             ViewModel.RemoveCard(vm);
             var location = e.GetPosition(null);
@@ -88,7 +86,7 @@ namespace CardGames.WPF
                     stack.Drop(vm);
                     return;
                 }
-            }
+            }*/
         }
 
         private void Stack_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -96,12 +94,12 @@ namespace CardGames.WPF
             Rectangle rect = sender as Rectangle;
             if (rect == null)
                 return;
-
+            /*
             CardStackViewModel vm = rect.Tag as CardStackViewModel;
             vm.DrawToHand();
             var location = e.GetPosition(null);
             _dx = location.X - vm.X;
-            _dy = location.Y - vm.Y;
+            _dy = location.Y - vm.Y;*/
         }
     }
 }
