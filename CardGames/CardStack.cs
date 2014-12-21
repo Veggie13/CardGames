@@ -198,6 +198,11 @@ namespace CardGames
             Activated(this, e);
             return true;
         }
+
+        public bool HasProperty(string name)
+        {
+            return _properties.ContainsKey(name);
+        }
         #endregion
 
         #region ICardSequence
