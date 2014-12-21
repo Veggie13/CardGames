@@ -17,7 +17,8 @@ namespace CardGames.WPF
             _cardImages = cardImages;
             _card = card;
 
-            _card.Modified += new Action(_card_Modified);
+            if (_card != null)
+                _card.Modified += new Action(_card_Modified);
         }
 
         void _card_Modified()
@@ -80,7 +81,7 @@ namespace CardGames.WPF
         {
             if (other == null)
                 return false;
-            return _card.Equals(other._card);
+            return _card == other._card;
         }
 
         public override int GetHashCode()

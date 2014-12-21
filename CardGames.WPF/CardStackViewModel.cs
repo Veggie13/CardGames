@@ -20,7 +20,8 @@ namespace CardGames.WPF
 
             _cardImages = cardImages;
             _cardStack = stack;
-            
+
+            loadProperties();
             updateCards();
 
             _cardStack.Modified += new Action(_cardStack_Modified);
@@ -41,17 +42,20 @@ namespace CardGames.WPF
 
         public double X
         {
-            get { return (double)_cardStack["X"]; }
+            get;
+            private set;
         }
 
         public double Y
         {
-            get { return (double)_cardStack["Y"]; }
+            get;
+            private set;
         }
 
         public int ZOrder
         {
-            get { return (int)_cardStack["Z"]; }
+            get;
+            private set;
         }
 
         public bool Visible
@@ -120,15 +124,26 @@ namespace CardGames.WPF
 
         private void updateCards()
         {
-            _cardVMs.Clear();
             int count = _cardStack.Count;
+
+            _cardVMs.Clear();
+            if (count == 0)
+            {
+                _cardVMs.Add(new CardViewModel(_cardImages, null)
+                {
+                    X = X,
+                    Y = Y,
+                    ZOrder = int.MinValue
+                });
+            }
+
             double xFanTotal = 0;
             double yFanTotal = 0;
             foreach (var c in _cardStack.Reverse().Select((cc, i) => new CardViewModel(_cardImages, cc)
             {
                 X = X + xFanTotal,
                 Y = Y + yFanTotal,
-                ZOrder = ZOrder + i
+                ZOrder = ZOrder + i + 1
             }))
             {
                 xFanTotal += xFan(c.Card);
@@ -145,6 +160,16 @@ namespace CardGames.WPF
         private double yFan(Card c)
         {
             return c.Visibility == CardVisibility.FaceUp ? YFanFaceUp : YFanFaceDown;
+        }
+
+        private void loadProperties()
+        {
+            if (_cardStack.HasProperty("X"))
+                X = (double)_cardStack["X"];
+            if (_cardStack.HasProperty("Y"))
+                Y = (double)_cardStack["Y"];
+            if (_cardStack.HasProperty("Z"))
+                ZOrder = (int)_cardStack["Z"];
         }
     }
 }
