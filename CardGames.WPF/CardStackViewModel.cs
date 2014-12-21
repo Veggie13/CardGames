@@ -16,6 +16,8 @@ namespace CardGames.WPF
 
         public CardStackViewModel(CardImageSet cardImages, CardStack stack)
         {
+            Visible = true;
+
             _cardImages = cardImages;
             _cardStack = stack;
             
@@ -27,6 +29,11 @@ namespace CardGames.WPF
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
+        public CardStack Stack
+        {
+            get { return _cardStack; }
+        }
+        
         public IEnumerable<CardViewModel> Cards
         {
             get { return _cardVMs; }
@@ -42,6 +49,17 @@ namespace CardGames.WPF
             get { return (double)_cardStack["Y"]; }
         }
 
+        public int ZOrder
+        {
+            get { return (int)_cardStack["Z"]; }
+        }
+
+        public bool Visible
+        {
+            get;
+            set;
+        }
+
         private void _cardStack_CardsDrawn(CardStack stack, CardStack.CardEventArgs e)
         {
             updateCards();
@@ -55,11 +73,12 @@ namespace CardGames.WPF
         private void updateCards()
         {
             _cardVMs.Clear();
+            int count = _cardStack.Count;
             foreach (var c in _cardStack.Select((cc, i) => new CardViewModel(_cardImages, cc)
             {
                 X = X,
-                Y = Y,
-                ZOrder = -i
+                Y = Y + count - i,
+                ZOrder = ZOrder - i
             }))
             {
                 _cardVMs.Add(c);

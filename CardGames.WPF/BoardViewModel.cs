@@ -11,6 +11,7 @@ namespace CardGames.WPF
     {
         private Board _board;
         private ObservableCollection<CardStackViewModel> _stacks;
+        private CardStackViewModel _hand;
         private CardImageSet _cardImages = new CardImageSet();
 
         public BoardViewModel(Board board)
@@ -18,11 +19,21 @@ namespace CardGames.WPF
             _board = board;
             var stackVMs = _board.Stacks.Select(s => new CardStackViewModel(_cardImages, s));
             _stacks = new ObservableCollection<CardStackViewModel>(stackVMs);
+            _hand = new CardStackViewModel(_cardImages, _board.Hand)
+            {
+                Visible = false
+            };
+            _stacks.Add(_hand);
         }
 
         public IEnumerable<CardStackViewModel> Stacks
         {
             get { return _stacks; }
+        }
+
+        public CardStackViewModel Hand
+        {
+            get { return _hand; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };

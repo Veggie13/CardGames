@@ -8,6 +8,9 @@
              xmlns:l="clr-namespace:CardGames.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <l:VisibilityConverter x:Key="VisibilityConverter"/>
+    </UserControl.Resources>
     <Grid x:Name="_mainGrid"
             DataContext="{Binding ViewModel}"
             VerticalAlignment="Stretch"
@@ -30,15 +33,18 @@
                 <DataTemplate DataType="{x:Type l:CardStackViewModel}">
                     <ItemsControl ItemsSource="{Binding Cards}"
                                   VerticalAlignment="Stretch"
-                                  HorizontalAlignment="Stretch">
+                                  HorizontalAlignment="Stretch"
+                                  Visibility="{Binding Path=Visible, Converter={StaticResource VisibilityConverter}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Canvas VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemContainerStyle>
                             <Style TargetType="{x:Type ContentPresenter}">
-                                <Setter Property="Panel.ZIndex" Value="{Binding ZOrder}"/>
+                                <Setter Property="Panel.ZIndex"
+                                        Value="{Binding ZOrder}"/>
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                         <ItemsControl.ItemTemplate>
@@ -50,7 +56,8 @@
                                         <ImageBrush ImageSource="{Binding CardImage}"/>
                                     </Rectangle.Fill>
                                     <Rectangle.RenderTransform>
-                                        <TranslateTransform X="{Binding X}" Y="{Binding Y}"/>
+                                        <TranslateTransform X="{Binding X}"
+                                                            Y="{Binding Y}"/>
                                     </Rectangle.RenderTransform>
                                 </Rectangle>
                             </DataTemplate>

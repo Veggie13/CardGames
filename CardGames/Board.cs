@@ -8,6 +8,7 @@ namespace CardGames
     public class Board
     {
         private Dictionary<string, Tuple<CardStack, IStackRule>> _stacks = new Dictionary<string, Tuple<CardStack, IStackRule>>();
+        private CardStack _hand = new CardStack("hand");
 
         public Board()
         {
@@ -37,6 +38,11 @@ namespace CardGames
         public IEnumerable<CardStack> Stacks
         {
             get { return _stacks.Values.Select(t => t.Item1); }
+        }
+
+        public CardStack Hand
+        {
+            get { return _hand; }
         }
 
         public bool RulesEnabled { get; set; }
