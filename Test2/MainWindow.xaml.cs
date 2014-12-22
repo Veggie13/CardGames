@@ -69,49 +69,49 @@ namespace Test2
             _game.Board["pile1"]["Z"] = 0;
             _game.Board["pile1"]["XFan"] = 0.0;
             _game.Board["pile1"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile1"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile1"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile2"]["X"] = 100.0;
             _game.Board["pile2"]["Y"] = 150.0;
             _game.Board["pile2"]["Z"] = 0;
             _game.Board["pile2"]["XFan"] = 0.0;
             _game.Board["pile2"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile2"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile2"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile3"]["X"] = 200.0;
             _game.Board["pile3"]["Y"] = 150.0;
             _game.Board["pile3"]["Z"] = 0;
             _game.Board["pile3"]["XFan"] = 0.0;
             _game.Board["pile3"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile3"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile3"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile4"]["X"] = 300.0;
             _game.Board["pile4"]["Y"] = 150.0;
             _game.Board["pile4"]["Z"] = 0;
             _game.Board["pile4"]["XFan"] = 0.0;
             _game.Board["pile4"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile4"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile4"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile5"]["X"] = 400.0;
             _game.Board["pile5"]["Y"] = 150.0;
             _game.Board["pile5"]["Z"] = 0;
             _game.Board["pile5"]["XFan"] = 0.0;
             _game.Board["pile5"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile5"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile5"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile6"]["X"] = 500.0;
             _game.Board["pile6"]["Y"] = 150.0;
             _game.Board["pile6"]["Z"] = 0;
             _game.Board["pile6"]["XFan"] = 0.0;
             _game.Board["pile6"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile6"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile6"]["YFanFaceUp"] = 30.0;
 
             _game.Board["pile7"]["X"] = 600.0;
             _game.Board["pile7"]["Y"] = 150.0;
             _game.Board["pile7"]["Z"] = 0;
             _game.Board["pile7"]["XFan"] = 0.0;
             _game.Board["pile7"]["YFanFaceDown"] = 1.0;
-            _game.Board["pile7"]["YFanFaceUp"] = 10.0;
+            _game.Board["pile7"]["YFanFaceUp"] = 30.0;
 
             _game.Deal();
 

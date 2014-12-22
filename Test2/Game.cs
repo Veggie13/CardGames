@@ -183,8 +183,12 @@ namespace Test2
 
         public bool CanDrop(CardStack source, CardStack stack, IEnumerable<Card> cards)
         {
+            if (!stack.Any())
+            {
+                return (cards.Last().FaceValue == Face.King);
+            }
             if (stack.Top.Colour != cards.Last().Colour
-                && (int)cards.Last().FaceValue - (int)stack.Top.FaceValue == 1)
+                && (int)stack.Top.FaceValue - (int)cards.Last().FaceValue == 1)
             {
                 return true;
             }
@@ -193,13 +197,11 @@ namespace Test2
 
         public bool CanActivate(CardStack stack)
         {
-            return false;
+            return stack.Any() && stack.First().Visibility == CardVisibility.FaceDown;
         }
 
         public void OnDraw(CardStack stack, IEnumerable<Card> cards)
         {
-            if (stack.Top.Visibility == CardVisibility.FaceDown)
-                stack.Top.Flip();
         }
 
         public void OnDrop(CardStack source, CardStack stack, IEnumerable<Card> cards)
@@ -208,6 +210,7 @@ namespace Test2
 
         public void OnActivation(CardStack stack)
         {
+            stack.FlipTop();
         }
     }
 

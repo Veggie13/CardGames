@@ -37,6 +37,12 @@ namespace CardGames.WPF
             get { return _cardImages[_card]; }
         }
 
+        public CardStackViewModel ParentStackViewModel
+        {
+            get;
+            set;
+        }
+
         private double _x = 0f;
         public double X
         {

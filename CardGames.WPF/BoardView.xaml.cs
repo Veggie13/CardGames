@@ -20,6 +20,7 @@ namespace CardGames.WPF
     /// </summary>
     public partial class BoardView : UserControl, INotifyPropertyChanged
     {
+        private ICardSequenceAction _action;
         private double _dx, _dy;
 
         public BoardView()
@@ -47,10 +48,29 @@ namespace CardGames.WPF
                 return;
 
             CardViewModel vm = rect.Tag as CardViewModel;
+
+            if (vm.ParentStackViewModel.Stack.Activate())
+                return;
+
+            int cardPos = vm.ParentStackViewModel.Stack.IndexOf(vm.Card);
+            _action = vm.ParentStackViewModel.Stack.TryDrawFromTop(cardPos + 1);
+
+            if (!_action.Cards.Any())
+            {
+                _action = null;
+                return;
+            }
+
+            ViewModel.Hand.Stack.Source = vm.ParentStackViewModel.Stack;
+            _action.Cards.StackOnto(ViewModel.Hand.Stack);
+
             var location = e.GetPosition(null);
             _dx = location.X - vm.X;
             _dy = location.Y - vm.Y;
-            vm.ZOrder *= -1;
+
+            ViewModel.Hand.X = vm.X;
+            ViewModel.Hand.Y = vm.Y;
+            ViewModel.Hand.Visible = true;
         }
 
         private void Card_MouseMove(object sender, MouseEventArgs e)
@@ -58,48 +78,47 @@ namespace CardGames.WPF
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 Rectangle rect = sender as Rectangle;
-                if (rect == null)
+                if (rect == null || _action == null)
                     return;
 
-                CardViewModel vm = rect.Tag as CardViewModel;
+                //CardViewModel vm = rect.Tag as CardViewModel;
                 var location = e.GetPosition(null);
-                vm.X = location.X - _dx;
-                vm.Y = location.Y - _dy;
+                ViewModel.Hand.X = location.X - _dx;
+                ViewModel.Hand.Y = location.Y - _dy;
             }
         }
 
         private void Card_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Rectangle rect = sender as Rectangle;
-            if (rect == null)
+            if (rect == null || _action == null)
                 return;
-            /*
-            CardViewModel vm = rect.Tag as CardViewModel;
-            ViewModel.RemoveCard(vm);
-            var location = e.GetPosition(null);
 
-            foreach (CardStackViewModel stack in ViewModel.Cards)
+            var handAction = ViewModel.Hand.Stack.TryDrawFromTop(ViewModel.Hand.Stack.Count);
+            
+            var location = e.GetPosition(null);
+            var dropStack = stackUnder(location);
+            if (dropStack == null || !handAction.Cards.StackOnto(dropStack.Stack))
             {
-                Rect r = new Rect(stack.X, stack.Y, stack.TopCardImage.Width, stack.TopCardImage.Height);
-                if (r.Contains(location))
-                {
-                    stack.Drop(vm);
-                    return;
-                }
-            }*/
+                _action.Undo();
+            }
+
+            _action = null;
+            ViewModel.Hand.Visible = false;
         }
 
-        private void Stack_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private CardStackViewModel stackUnder(Point location)
         {
-            Rectangle rect = sender as Rectangle;
-            if (rect == null)
-                return;
-            /*
-            CardStackViewModel vm = rect.Tag as CardStackViewModel;
-            vm.DrawToHand();
-            var location = e.GetPosition(null);
-            _dx = location.X - vm.X;
-            _dy = location.Y - vm.Y;*/
+            foreach (CardStackViewModel stack in ViewModel.Stacks.Except(new[] { ViewModel.Hand }))
+            {
+                var topCard = stack.Cards.First();
+                Rect r = new Rect(topCard.X, topCard.Y, topCard.CardImage.Width, topCard.CardImage.Height);
+                if (r.Contains(location))
+                {
+                    return stack;
+                }
+            }
+            return null;
         }
     }
 }

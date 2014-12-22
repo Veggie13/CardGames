@@ -51,7 +51,10 @@
                             <DataTemplate DataType="{x:Type l:CardViewModel}">
                                 <Rectangle Width="{Binding CardImage.Width}"
                                            Height="{Binding CardImage.Height}"
-                                           Tag="{Binding}">
+                                           Tag="{Binding}"
+                                           MouseDown="Card_MouseLeftButtonDown"
+                                           MouseMove="Card_MouseMove"
+                                           MouseUp="Card_MouseLeftButtonUp">
                                     <Rectangle.Fill>
                                         <ImageBrush ImageSource="{Binding CardImage}"/>
                                     </Rectangle.Fill>
